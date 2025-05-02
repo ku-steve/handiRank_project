@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HandiRank</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta name="google-site-verification" content="FGod8H1ETpo3k8P0FBjxdUfss8qLaMKPhvdpqc27Cxs" />
+  <!-- Google APIs -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+  <!-- Login screen that shows before any content -->
+  <div class="pre-login-content fade-in">
+    <img src="logo.png" alt="HandiRank Logo" class="large-logo logo-sparkle" id="appLogo">
+    <h1 class="app-title fade-up fade-delay-1 sparkle-text">HandiRank</h1>
+    <p class="app-tagline fade-up fade-delay-2">Track Your Golf Group's Rankings</p>
+    
+    <button id="mainSigninBtn" class="google-button fade-up fade-delay-3">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="width: 20px; height: 20px;">
+      Sign in with Google
+    </button>
+  </div>
+
+  <!-- Main content - will be shown after login -->
+  <div class="main-content">
+    <div class="video-background">
+      <iframe src="https://www.youtube.com/embed/sOExCf8ZBcM?autoplay=1&mute=1&controls=0&loop=1&playlist=sOExCf8ZBcM&modestbranding=1&showinfo=0&rel=0"
+              frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
+      </iframe>
+    </div>  
+    <div class="main-container">
+      <header class="hero">
+        <div class="header-content">
+          <img src="logo.png" alt="HandiRank Logo" class="logo" />
+          <h1 class="logo-text">HandiRank</h1>
+          <h1 class="hero-title">Track Your Golf Group's Rankings</h1>
+          <p class="subtitle">Compare handicaps across all groups or just yours.</p>
+        </div>
+        
+        <!-- Home button - only shown when in a specific season view -->
+
+      </header>
+      <div class="disclaimer-banner">
+        Strictly for golf use only.
+      </div>
+
+      <!-- Hidden Sign In Button - we'll use the main one on the login page -->
+      <div id="signinDiv" style="display: none;">
+        <button id="signinBtn" class="google-button">
+          <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" />
+          Sign in with Google
+        </button>
+      </div>
+
+      <!-- Season Info -->
+      <div id="currentSeason" style="display:none;" class="current-season"></div>
+
+      <!-- Button container for action buttons -->
+      <div class="button-container" id="actionButtons">
+        <!-- Buttons will be added here by JS -->
+      </div>
+
+      <!-- Enter Round Form -->
+      <form id="roundForm" style="display:none;">
+        <h2>Enter New Round</h2>
+        <label>Gross Score:</label>
+        <input type="number" id="gross" required />
+        <label>Course Rating:</label>
+        <input type="number" step="0.1" id="rating" required />
+        <label>Slope:</label>
+        <input type="number" id="slope" required />
+        <label>Holes:</label>
+        <select id="holes">
+          <option value="18">18</option>
+          <option value="9">9</option>
+        </select>
+        <button type="submit">Submit Round</button>
+      </form>
+
+      <!-- Leaderboard -->
+      <h2 id="leaderboardTitle" class="title">World Leaderboard</h2>
+      <table id="leaderboard">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Rounds</th>
+            <th>Avg Diff</th>
+            <th>Handicap</th>
+            <th>Recent Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Initially empty, will be populated with JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal for Season Code -->
+    <div id="seasonModal" class="modal">
+      <div class="modal-content">
+        <h3>Golf Season</h3>
+        
+        <!-- Tabs -->
+        <div class="tab-container">
+          <button class="tab-button active" data-tab="join">Join Existing</button>
+          <button class="tab-button" data-tab="create">Create New</button>
+        </div>
+        
+        <!-- Join Season Tab Content -->
+        <div id="join-tab" class="tab-content active">
+          <p>Enter an existing season code to join your friends.</p>
+          <input type="text" id="joinSeasonInput" placeholder="Enter season code" />
+          <div class="recent-seasons">
+            <h4>Recent Seasons</h4>
+            <div id="recentSeasonsList">
+              <!-- Will be populated with JavaScript -->
+            </div>
+          </div>
+          <button id="joinConfirmBtn" class="primary-button">Join Season</button>
+        </div>
+        
+        <!-- Create Season Tab Content -->
+        <div id="create-tab" class="tab-content">
+          <p>Create a new season for your golf group.</p>
+          <input type="text" id="createSeasonInput" placeholder="Enter new season name" />
+          <button id="createConfirmBtn" class="primary-button">Create Season</button>
+        </div>
+        
+        <button class="close-button">&times;</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="text-align: center; margin-top: 20px;">
+      <a href="/privacy.html" style="color: white;">Privacy Policy</a>
+    </footer>
+  </div>
+
+  <!-- Round Form Modal -->
+
+
+  <!-- Main Script -->
+  <script src="script.js"></script>
+</body>
+</html>
