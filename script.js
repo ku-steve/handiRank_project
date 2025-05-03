@@ -186,45 +186,54 @@ document.addEventListener("DOMContentLoaded", function () {
         return hcpA - hcpB;
       });
       
-      // Clear and rebuild the leaderboard
-      leaderboard.innerHTML = '';
+    // Clear and rebuild the leaderboard
+    leaderboard.innerHTML = '';
+
+    sortedPlayers.forEach(([name, data], index) => {
+      const avg = calculateHandicap(data.diffs);
+      const handicap = +(avg * 0.96).toFixed(1);
+      const rank = index + 1;
+      const isFirstPlace = index === 0;
       
-      sortedPlayers.forEach(([name, data], index) => {
-        const avg = calculateHandicap(data.diffs);
-        const handicap = +(avg * 0.96).toFixed(1);
-        const rank = index + 1;
-        const isFirstPlace = index === 0;
+      // Create rank badge with appropriate styling
+      const rankBadge = `<div class="rank-badge rank-${rank <= 3 ? rank : 'other'}">${rank}</div>`;
       
-        // Create image tag
-        let imgHtml = '';
-        if (data.photo && data.photo.trim() !== '') {
-          const avatarClass = isFirstPlace ? 'avatar first-place-avatar' : 'avatar';
-          imgHtml = `<img src="${data.photo}" class="${avatarClass}" alt="avatar" onerror="console.log('Image failed to load: ${data.photo}')" />`;
-        }
+      // Create image tag
+      let imgHtml = '';
+      if (data.photo && data.photo.trim() !== '') {
+        const avatarClass = isFirstPlace ? 'avatar first-place-avatar' : 'avatar';
+        imgHtml = `<img src="${data.photo}" class="${avatarClass}" alt="avatar" onerror="console.log('Image failed to load: ${data.photo}')" />`;
+      }
       
-        // Add Rank label and trophy
-        const trophyIcon = isFirstPlace ? '<span class="trophy-icon">🥇</span>' : '';
-        const rankLabel = `<strong style="color:#ffaa00;">Rank #${rank}</strong> — ${name}`;
+      // Add trophy icon for top 3
+      let trophyIcon = '';
+      if (rank === 1) {
+        trophyIcon = '<span class="trophy-icon">🥇</span>';
+      } else if (rank === 2) {
+        trophyIcon = '<span class="trophy-icon">🥈</span>';
+      } else if (rank === 3) {
+        trophyIcon = '<span class="trophy-icon">🥉</span>';
+      }
       
-        // Create handicap badge
-        const handicapBadge = `<span class="handicap-badge">${handicap}</span>`;
+      // Create handicap badge
+      const handicapBadge = `<span class="handicap-badge">${handicap}</span>`;
       
-        // Add row to table
-        leaderboard.innerHTML += `
-          <tr class="${isFirstPlace ? 'first-place-row' : ''}">
-            <td style="display:flex; align-items:center; gap:10px;">
-              ${trophyIcon}
-              ${imgHtml}
-              <span class="player-name" style="cursor:pointer; text-decoration:underline; color:#0066cc;">
-                ${rankLabel}
-              </span>
-            </td>
-            <td>${data.diffs.length}</td>
-            <td>${avg.toFixed(2)}</td>
-            <td>${handicapBadge}</td>
-            <td>${data.recentScore !== null ? data.recentScore : '-'}</td>
-          </tr>`;
-      });
+      // Add row to table
+      leaderboard.innerHTML += `
+        <tr class="${isFirstPlace ? 'first-place-row' : ''}">
+          <td class="rank-cell">${rankBadge}</td>
+          <td style="display:flex; align-items:center; gap:10px;">
+            ${trophyIcon}
+            ${imgHtml}
+            <span class="player-name" style="cursor:pointer; text-decoration:underline; color:#0066cc;">
+              ${name}
+            </span>
+          </td>
+          <td>${data.diffs.length}</td>
+          <td>${handicapBadge}</td>
+          <td>${data.recentScore !== null ? data.recentScore : '-'}</td>
+        </tr>`;
+    });
       
       
       // Make player names clickable
@@ -324,45 +333,56 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       
       // Clear the leaderboard before adding new rows
-      leaderboard.innerHTML = '';
-  
-      sorted.forEach(([name, data], index) => {
-        const avg = calculateHandicap(data.diffs);
-        const handicap = +(avg * 0.96).toFixed(1);
-        
-        // Determine if this is the first place player
-        const isFirstPlace = index === 0;
-        
-        // Create a different image tag for first place
-        let imgHtml = '';
-        if (data.photo) {
-          const avatarClass = isFirstPlace ? 'avatar first-place-avatar' : 'avatar';
-          imgHtml = `<img src="${data.photo}" class="${avatarClass}" alt="avatar" />`;
-        }
-        
-        // Add trophy icon for first place
-        const trophyIcon = isFirstPlace ? 
-          '<span class="trophy-icon">🏆</span>' : '';
-        
-        const recentScore = data.recentScore !== null ? data.recentScore : '-';
-        
-        // Create a handicap badge
-        const handicapBadge = `<span class="handicap-badge">${handicap}</span>`;
-        
-        // Add the row to the table with clickable name
-        const rowClass = isFirstPlace ? 'first-place-row' : '';
-        
-        leaderboard.innerHTML += `
-          <tr class="${rowClass}">
-            <td style="display:flex; align-items:center; gap:10px;">
-              ${trophyIcon}${imgHtml}<span class="player-name" style="cursor:pointer; text-decoration:underline; color:#0066cc;">${name}</span>
-            </td>
-            <td>${data.diffs.length}</td>
-            <td>${avg.toFixed(2)}</td>
-            <td>${handicapBadge}</td>
-            <td>${recentScore}</td>
-          </tr>`;
-      });
+        // Clear the leaderboard before adding new rows
+    leaderboard.innerHTML = '';
+
+    sorted.forEach(([name, data], index) => {
+      const avg = calculateHandicap(data.diffs);
+      const handicap = +(avg * 0.96).toFixed(1);
+      const rank = index + 1;
+      const isFirstPlace = index === 0;
+      
+      // Create rank badge with appropriate styling
+      const rankBadge = `<div class="rank-badge rank-${rank <= 3 ? rank : 'other'}">${rank}</div>`;
+      
+      // Create a different image tag for first place
+      let imgHtml = '';
+      if (data.photo) {
+        const avatarClass = isFirstPlace ? 'avatar first-place-avatar' : 'avatar';
+        imgHtml = `<img src="${data.photo}" class="${avatarClass}" alt="avatar" />`;
+      }
+      
+      // Add trophy icon for top 3
+      let trophyIcon = '';
+      if (rank === 1) {
+        trophyIcon = '<span class="trophy-icon">🥇</span>';
+      } else if (rank === 2) {
+        trophyIcon = '<span class="trophy-icon">🥈</span>';
+      } else if (rank === 3) {
+        trophyIcon = '<span class="trophy-icon">🥉</span>';
+      }
+      
+      const recentScore = data.recentScore !== null ? data.recentScore : '-';
+      
+      // Create a handicap badge
+      const handicapBadge = `<span class="handicap-badge">${handicap}</span>`;
+      
+      // Add the row to the table with clickable name
+      const rowClass = isFirstPlace ? 'first-place-row' : '';
+      
+      leaderboard.innerHTML += `
+        <tr class="${rowClass}">
+          <td class="rank-cell">${rankBadge}</td>
+          <td style="display:flex; align-items:center; gap:10px;">
+            ${trophyIcon}
+            ${imgHtml}
+            <span class="player-name" style="cursor:pointer; text-decoration:underline; color:#0066cc;">${name}</span>
+          </td>
+          <td>${data.diffs.length}</td>
+          <td>${handicapBadge}</td>
+          <td>${recentScore}</td>
+        </tr>`;
+    });
       
       // Make player names clickable after loading data
       makePlayerNamesClickable();

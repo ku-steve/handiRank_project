@@ -1411,3 +1411,56 @@ body.logged-in .main-content {
 * {
   box-sizing: border-box;
 }
+/* Ranking styles */
+.rank-cell {
+  width: 60px;
+  text-align: center;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 1.2em;
+  margin: 0 auto;
+}
+
+.rank-1 {
+  background: linear-gradient(145deg, #ffd700, #ffcc00);
+  color: #333;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
+}
+
+.rank-2 {
+  background: linear-gradient(145deg, #c0c0c0, #d9d9d9);
+  color: #333;
+  box-shadow: 0 2px 6px rgba(192, 192, 192, 0.5);
+}
+
+.rank-3 {
+  background: linear-gradient(145deg, #cd7f32, #e9967a);
+  color: #333;
+  box-shadow: 0 2px 6px rgba(205, 127, 50, 0.5);
+}
+
+.rank-other {
+  background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+  color: #666;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Trophy icons for top 3 */
+.trophy-icon {
+  font-size: 1.5em;
+  margin-right: 5px;
+}
+
+/* Player row hover effect */
+#leaderboard tbody tr:hover {
+  background-color: rgba(242, 213, 15, 0.1);
+  transition: background-color 0.2s ease;
+}
