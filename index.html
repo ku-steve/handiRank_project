@@ -21,6 +21,27 @@
       <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="width: 20px; height: 20px;">
       Sign in with Google
     </button>
+          <!-- About Toggle Section -->
+      <p style="margin-top: 30px; text-align: center; font-size: 0.85em;">
+        <a href="#" id="aboutToggle" style="color: #f2d50f; text-decoration: underline; cursor: pointer;">
+          What is HandiRank?
+        </a>
+      </p>
+      <div id="aboutContent" style="display: none; margin: 10px auto; max-width: 600px; color: #d4b278; font-size: 0.85em; text-align: center;">
+        <p>HandiRank helps golf groups track player rankings and handicaps over a season.</p>
+        <p>We use Google Sign-In to show your name and profile picture on the leaderboard.</p>
+        <p>Scores are securely stored using a service account connected to Google Sheets.</p>
+        <p>You can view this information without logging in.</p>
+      </div>
+
+      <script>
+        document.getElementById('aboutToggle').onclick = function(e) {
+          e.preventDefault();
+          var content = document.getElementById('aboutContent');
+          content.style.display = content.style.display === 'none' ? 'block' : 'none';
+        };
+      </script>
+
     <footer style="text-align: center; margin-top: 20px;">
       <a href="/privacy.html" style="color: white;">Privacy Policy</a>
     </footer>
