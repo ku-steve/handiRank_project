@@ -1464,3 +1464,619 @@ body.logged-in .main-content {
   background-color: rgba(242, 213, 15, 0.1);
   transition: background-color 0.2s ease;
 }
+/* Enhanced Admin System CSS - Add to your existing style.css */
+
+/* ===== ADMIN CONTROLS ===== */
+.admin-add-round-button {
+  background: linear-gradient(145deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  font-size: 0.95em;
+}
+
+.admin-add-round-button:hover {
+  background: linear-gradient(145deg, #45a049, #3d8b40);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+}
+
+.admin-add-round-button svg {
+  margin-right: 8px;
+}
+
+.manage-participants-button {
+  background: linear-gradient(145deg, #f2d50f, #e6c60e);
+  color: #333;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  font-size: 0.95em;
+}
+
+.manage-participants-button:hover {
+  background: linear-gradient(145deg, #e6c60e, #d4af37);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+}
+
+.manage-participants-button svg {
+  margin-right: 8px;
+}
+
+/* ===== PARTICIPANT CONTROLS ===== */
+.participant-info {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(145deg, #e8f4fd, #d1ecf1);
+  border: 2px solid #4CAF50;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.participant-badge {
+  background: linear-gradient(145deg, #4CAF50, #45a049);
+  color: white;
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9em;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.participant-badge::before {
+  content: "✓ ";
+  margin-right: 5px;
+}
+
+.participant-info p {
+  margin: 8px 0 0 0;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+/* ===== JOIN SEASON BUTTON ===== */
+.join-season-button {
+  background: linear-gradient(145deg, #2196F3, #1976D2);
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 15px auto;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  font-size: 1rem;
+}
+
+.join-season-button:hover {
+  background: linear-gradient(145deg, #1976D2, #1565C0);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+}
+
+.join-season-button svg {
+  margin-right: 8px;
+}
+
+/* ===== JOIN PASSWORD MODAL ===== */
+.join-season-content {
+  text-align: center;
+}
+
+.join-season-content p {
+  margin-bottom: 20px;
+  color: #555;
+  font-size: 1.1em;
+}
+
+.join-season-content input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1em;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+  letter-spacing: 2px;
+  box-sizing: border-box;
+}
+
+.join-season-content input[type="password"]:focus {
+  border-color: #2196F3;
+  outline: none;
+  box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+}
+
+/* ===== ADMIN ROUND FORM ===== */
+#adminRoundForm {
+  max-width: 100%;
+}
+
+#adminRoundForm label {
+  display: block;
+  margin: 15px 0 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+#adminRoundForm select,
+#adminRoundForm input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+
+#adminRoundForm select:focus,
+#adminRoundForm input:focus {
+  border-color: #4CAF50;
+  outline: none;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+#playerSelect {
+  background-color: white;
+  cursor: pointer;
+}
+
+#playerSelect option {
+  padding: 5px;
+}
+
+/* ===== PARTICIPANTS MODAL ===== */
+.participants-content {
+  max-width: 100%;
+}
+
+.season-password-info {
+  background: linear-gradient(145deg, #fff9c4, #f0f4c3);
+  border: 2px solid #f2d50f;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.season-password-info h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.password-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+#seasonPasswordDisplay {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: monospace;
+  font-size: 1.1em;
+  flex: 1;
+  letter-spacing: 1px;
+}
+
+.toggle-password-btn {
+  background: linear-gradient(145deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.toggle-password-btn:hover {
+  background: linear-gradient(145deg, #45a049, #3d8b40);
+}
+
+/* ===== PARTICIPANTS LIST ===== */
+.participants-list h4 {
+  margin-bottom: 15px;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+}
+
+.participant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.participant-item:hover {
+  background: #f8f9fa;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.participant-item .participant-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.participant-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.participant-item strong {
+  display: block;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.participant-status {
+  font-size: 0.8em;
+  color: #666;
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.participant-status[data-admin="true"] {
+  background: linear-gradient(145deg, #f2d50f, #e6c60e);
+  color: #333;
+  font-weight: bold;
+}
+
+.remove-participant-btn {
+  background: linear-gradient(145deg, #f44336, #d32f2f);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.remove-participant-btn:hover {
+  background: linear-gradient(145deg, #d32f2f, #b71c1c);
+  transform: scale(1.05);
+}
+
+.no-participants {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px dashed #ddd;
+}
+
+/* ===== SEASON CREATION ENHANCEMENTS ===== */
+#create-tab input[type="password"] {
+  margin-bottom: 5px;
+}
+
+#create-tab small {
+  display: block;
+  margin-bottom: 15px;
+  padding: 8px;
+  background: #e3f2fd;
+  border-left: 3px solid #2196F3;
+  border-radius: 4px;
+}
+
+/* ===== STATUS INDICATORS ===== */
+.season-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.season-status-indicator.admin {
+  background: linear-gradient(145deg, #f2d50f, #e6c60e);
+  color: #333;
+}
+
+.season-status-indicator.admin::before {
+  content: "👑";
+}
+
+.season-status-indicator.participant {
+  background: linear-gradient(145deg, #4CAF50, #45a049);
+  color: white;
+}
+
+.season-status-indicator.participant::before {
+  content: "✓";
+}
+
+.season-status-indicator.visitor {
+  background: linear-gradient(145deg, #9e9e9e, #757575);
+  color: white;
+}
+
+.season-status-indicator.visitor::before {
+  content: "👁";
+}
+
+/* ===== ENHANCED NOTIFICATIONS ===== */
+.notification.admin {
+  background: linear-gradient(145deg, #f2d50f, #e6c60e);
+  color: #333;
+  border-left: 4px solid #d4af37;
+}
+
+.notification.participant {
+  background: linear-gradient(145deg, #4CAF50, #45a049);
+  color: white;
+  border-left: 4px solid #2e7d32;
+}
+
+/* ===== ROUND ENTRY INDICATORS ===== */
+.admin-entry-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7em;
+  color: #666;
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 8px;
+  margin-left: 8px;
+}
+
+.admin-entry-indicator::before {
+  content: "👑";
+  font-size: 0.8em;
+}
+
+/* ===== RESPONSIVE ENHANCEMENTS ===== */
+@media screen and (max-width: 768px) {
+  .admin-add-round-button,
+  .manage-participants-button,
+  .join-season-button {
+    width: 100%;
+    margin: 8px 0;
+    padding: 15px;
+    font-size: 1rem;
+  }
+  
+  .button-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .participant-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .participant-item .participant-info {
+    justify-content: center;
+  }
+  
+  .remove-participant-btn {
+    align-self: center;
+    width: 150px;
+  }
+  
+  .password-display {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .toggle-password-btn {
+    width: 100%;
+    padding: 10px;
+  }
+  
+  #seasonPasswordDisplay {
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .participants-content,
+  .join-season-content {
+    padding: 10px 0;
+  }
+  
+  .season-password-info {
+    padding: 12px;
+  }
+  
+  .modal-content {
+    padding: 15px;
+    margin: 20px 10px;
+  }
+  
+  .participant-avatar {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .admin-add-round-button svg,
+  .manage-participants-button svg,
+  .join-season-button svg {
+    margin-right: 6px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ===== FORM VALIDATION STYLES ===== */
+.form-error {
+  border-color: #f44336 !important;
+  box-shadow: 0 0 5px rgba(244, 67, 54, 0.3) !important;
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 0.8em;
+  margin-top: 5px;
+  display: block;
+}
+
+.form-success {
+  border-color: #4CAF50 !important;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3) !important;
+}
+
+/* ===== LOADING STATES ===== */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.button-loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ===== ENHANCED TOOLTIPS ===== */
+.tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 1000;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+}
+
+/* ===== SEASON INFO ENHANCEMENTS ===== */
+.current-season {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  padding: 15px;
+  background: linear-gradient(145deg, rgba(212, 178, 120, 0.1), rgba(212, 178, 120, 0.05));
+  border: 1px solid rgba(212, 178, 120, 0.3);
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.season-name {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #d4b278;
+}
+
+.season-participants-count {
+  background: rgba(212, 178, 120, 0.2);
+  color: #d4b278;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.9em;
+}
+
+/* ===== ADMIN ACTIONS LOG ===== */
+.admin-actions-log {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 20px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.admin-actions-log h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.action-item {
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.action-item:last-child {
+  border-bottom: none;
+}
+
+.action-timestamp {
+  font-size: 0.8em;
+  color: #999;
+  float: right;
+}

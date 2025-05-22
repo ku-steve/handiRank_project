@@ -1,4 +1,3 @@
-// netlify/functions/create-season.js
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 exports.handler = async function(event, context) {
@@ -8,23 +7,18 @@ exports.handler = async function(event, context) {
     'Content-Type': 'application/json'
   };
   
-  // Handle preflight OPTIONS request
   if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: ''
-    };
+    return { statusCode: 200, headers, body: '' };
   }
   
   try {
-    const { seasonCode, userName } = JSON.parse(event.body);
+    const { seasonCode, password, adminName, adminEmail, adminPhoto } = JSON.parse(event.body);
     
-    if (!seasonCode) {
+    if (!seasonCode || !password || !adminName) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Season code is required' })
+        body: JSON.stringify({ error: 'Season code, password, and admin name are required' })
       };
     }
     
@@ -36,35 +30,60 @@ exports.handler = async function(event, context) {
     });
     
     await doc.loadInfo();
-    const sheet = doc.sheetsByIndex[0]; // First sheet
     
-    // Check if season exists
-    const rows = await sheet.getRows();
-    const existingSeasons = [...new Set(
-      rows.map(row => row['Season Code'])
-          .filter(code => code && code.trim() !== '')
-          .map(code => code.trim().toLowerCase())
-    )];
+    // Check if we have a "Seasons" sheet, if not create it
+    let seasonsSheet = doc.sheetsByTitle['Seasons'];
+    if (!seasonsSheet) {
+      seasonsSheet = await doc.addSheet({
+        title: 'Seasons',
+        headerValues: [
+          'Season Code', 'Password', 'Admin Name', 'Admin Email', 'Admin Photo',
+          'Participants', 'Created At', 'Settings'
+        ]
+      });
+    }
+    
+    // Check if season already exists
+    const rows = await seasonsSheet.getRows();
+    const existingSeasons = rows.map(row => row['Season Code']?.toLowerCase()).filter(Boolean);
     
     if (existingSeasons.includes(seasonCode.toLowerCase())) {
       return {
-        statusCode: 400,
+        statusCode: 409,
         headers,
         body: JSON.stringify({ error: 'Season already exists' })
       };
     }
     
-    // Add a "season creation" record
-    await sheet.addRow({
-      Date: new Date().toLocaleString(),
-      Player: userName || 'System',
-      'Season Code': seasonCode
+    // Create the season record
+    const participants = [{
+      name: adminName,
+      email: adminEmail || '',
+      photo: adminPhoto || '',
+      isAdmin: true,
+      joinedAt: new Date().toISOString()
+    }];
+    
+    const settings = {
+      requireApproval: false,
+      maxParticipants: 50
+    };
+    
+    await seasonsSheet.addRow({
+      'Season Code': seasonCode,
+      'Password': password, // In production, hash this
+      'Admin Name': adminName,
+      'Admin Email': adminEmail || '',
+      'Admin Photo': adminPhoto || '',
+      'Participants': JSON.stringify(participants),
+      'Created At': new Date().toISOString(),
+      'Settings': JSON.stringify(settings)
     });
     
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ success: true })
+      body: JSON.stringify({ success: true, seasonCode })
     };
   } catch (error) {
     console.log('Error:', error);

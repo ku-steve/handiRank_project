@@ -12,6 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
   let isLoggedIn = false;
   let playersData = {}; // Track player data globally for stats
   let modalCreated = false; // Track if the modal has been created
+  let userEmail = '';
+  let isSeasonAdmin = false;
+  let isSeasonParticipant = false;
+  let seasonParticipants = [];
+
 
   // DOM Elements
   const signinBtn = document.getElementById('signinBtn');
@@ -250,6 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  
   /**
    * Load season-specific leaderboard
    */
@@ -1148,6 +1154,7 @@ function showFirstTimeGuidance() {
       addSeasonManagementButton();
       
       // Load the season's leaderboard
+      await checkSeasonStatus();
       loadLeaderboard();
     } catch (error) {
       console.error('Error in season selection:', error);
@@ -1203,31 +1210,47 @@ function showFirstTimeGuidance() {
   /**
    * Create a new season
    */
-  async function createNewSeason(code) {
-    try {
-      const response = await fetch('/.netlify/functions/create-season', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+    async function createNewSeason(code, password = '') {
+      try {
+        const requestBody = {
           seasonCode: code,
-          userName: userName // Include user who created it
-        })
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Error creating season');
+          userName: userName
+        };
+        
+        // If password is provided, this is an admin season
+        if (password) {
+          requestBody.password = password;
+          requestBody.adminName = userName;
+          requestBody.adminEmail = userEmail;
+          requestBody.adminPhoto = userPhoto;
+        }
+        
+        const response = await fetch('/.netlify/functions/create-season', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Error creating season');
+        }
+
+        // If password was provided, user becomes admin
+        if (password) {
+          isSeasonAdmin = true;
+          isSeasonParticipant = true;
+        }
+
+        return true;
+      } catch (err) {
+        console.error("Error creating new season:", err);
+        showNotification(err.message, 'error');
+        return false;
       }
-  
-      return true;
-    } catch (err) {
-      console.error("Error creating new season:", err);
-      showNotification('Failed to create season. Please try again.', 'error');
-      return false;
     }
-  }
 
   /**
    * Validate round form and show errors
@@ -1569,6 +1592,7 @@ function showFirstTimeGuidance() {
       // Restore session data
       accessToken = storedToken;
       userName = storedName || 'Unknown Player';
+      userEmail = localStorage.getItem('userEmail') || '';
       userPhoto = storedPhoto || '';
       isLoggedIn = true;
       
@@ -1597,7 +1621,9 @@ function showFirstTimeGuidance() {
         addSeasonManagementButton();
         
         // Load the season-specific leaderboard
-        loadLeaderboard();
+        checkSeasonStatus().then(() => {
+          loadLeaderboard();
+        });
       } else {
         // Just load the world leaderboard
         loadWorldLeaderboardPublic();
@@ -1609,6 +1635,372 @@ function showFirstTimeGuidance() {
     return false;
   }
 
+    async function checkSeasonStatus() {
+        if (!seasonCode || !userName) return;
+        
+        try {
+          const response = await fetch(`/.netlify/functions/check-season-status?seasonCode=${encodeURIComponent(seasonCode)}&userName=${encodeURIComponent(userName)}`);
+          
+          if (response.ok) {
+            const data = await response.json();
+            isSeasonAdmin = data.isAdmin;
+            isSeasonParticipant = data.isParticipant;
+            seasonParticipants = data.participants || [];
+            
+            updateSeasonUI();
+          }
+        } catch (error) {
+          console.error('Error checking season status:', error);
+        }
+      }
+
+      /**
+       * Update UI based on season status
+       */
+      function updateSeasonUI() {
+        const actionButtons = document.getElementById('actionButtons');
+        if (!actionButtons) return;
+        
+        actionButtons.innerHTML = '';
+        
+        if (isSeasonAdmin) {
+          // Admin gets "Add Round for Player" button
+          const adminBtn = document.createElement('button');
+          adminBtn.className = 'admin-add-round-button';
+          adminBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            Add Round for Player
+          `;
+          adminBtn.addEventListener('click', showAdminRoundForm);
+          actionButtons.appendChild(adminBtn);
+          
+          // Admin gets "Manage Season" button
+          const manageBtn = document.createElement('button');
+          manageBtn.className = 'manage-season-button';
+          manageBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <path d="M20 8v6M23 11h-6"></path>
+            </svg>
+            Manage Season
+          `;
+          manageBtn.addEventListener('click', showSeasonManagement);
+          actionButtons.appendChild(manageBtn);
+          
+        } else if (isSeasonParticipant) {
+          // Participants see status message
+          const statusDiv = document.createElement('div');
+          statusDiv.className = 'participant-status-message';
+          statusDiv.innerHTML = `
+            <span class="participant-badge">✓ Season Participant</span>
+            <p>Contact the season admin to add your golf rounds.</p>
+          `;
+          actionButtons.appendChild(statusDiv);
+          
+        } else if (isLoggedIn) {
+          // Non-participants can join
+          const joinBtn = document.createElement('button');
+          joinBtn.className = 'join-season-button';
+          joinBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Join This Season
+          `;
+          joinBtn.addEventListener('click', showJoinPasswordDialog);
+          actionButtons.appendChild(joinBtn);
+        }
+        
+        if (isLoggedIn) {
+          addSeasonManagementButton();
+        }
+      }
+
+      /**
+       * Show admin round form
+       */
+      function showAdminRoundForm() {
+        if (seasonParticipants.length === 0) {
+          showNotification('No participants in this season yet.', 'error');
+          return;
+        }
+        
+        const modal = document.createElement('div');
+        modal.className = 'simple-modal';
+        modal.innerHTML = `
+          <div class="simple-modal-content">
+            <button class="simple-close" onclick="this.closest('.simple-modal').remove()">&times;</button>
+            <h3>Add Round for Player</h3>
+            
+            <form id="adminRoundForm">
+              <label>Select Player:</label>
+              <select id="adminPlayerSelect" required>
+                <option value="">Choose a player...</option>
+                ${seasonParticipants.map(p => `<option value="${p.name}" data-photo="${p.photo || ''}">${p.name}</option>`).join('')}
+              </select>
+              
+              <label>Gross Score:</label>
+              <input type="number" id="adminGross" required min="50" max="200" />
+              
+              <label>Course Rating:</label>
+              <input type="number" step="0.1" id="adminRating" required min="60" max="80" />
+              
+              <label>Slope:</label>
+              <input type="number" id="adminSlope" required min="55" max="155" />
+              
+              <label>Holes:</label>
+              <select id="adminHoles">
+                <option value="18">18</option>
+                <option value="9">9</option>
+              </select>
+              
+              <button type="submit" class="primary-button">Add Round</button>
+            </form>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+        modal.style.display = 'flex';
+        
+        document.getElementById('adminRoundForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const playerSelect = document.getElementById('adminPlayerSelect');
+          const selectedPlayer = playerSelect.value;
+          const selectedPhoto = playerSelect.selectedOptions[0]?.getAttribute('data-photo') || '';
+          
+          if (!selectedPlayer) {
+            showNotification('Please select a player', 'error');
+            return;
+          }
+          
+          const roundData = {
+            timestamp: new Date().toLocaleString(),
+            userName: selectedPlayer,
+            userPhoto: selectedPhoto,
+            gross: parseFloat(document.getElementById('adminGross').value),
+            rating: parseFloat(document.getElementById('adminRating').value),
+            slope: parseFloat(document.getElementById('adminSlope').value),
+            holes: parseInt(document.getElementById('adminHoles').value),
+            seasonCode,
+            addedBy: userName,
+            isAdminEntry: true
+          };
+          
+          const adjustedGross = roundData.gross - 2;
+          roundData.adjustedGross = adjustedGross;
+          roundData.differential = ((adjustedGross - roundData.rating) * 113 / roundData.slope).toFixed(2);
+          
+          try {
+            const response = await fetch('/.netlify/functions/add-round', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(roundData)
+            });
+            
+            if (!response.ok) throw new Error('Failed to add round');
+            
+            showNotification(`Round added for ${selectedPlayer}!`, 'success');
+            modal.remove();
+            loadLeaderboard();
+            
+          } catch (error) {
+            console.error('Error adding admin round:', error);
+            showNotification('Error adding round. Please try again.', 'error');
+          }
+        });
+      }
+
+      /**
+       * Show season management modal
+       */
+      function showSeasonManagement() {
+        const modal = document.createElement('div');
+        modal.className = 'simple-modal';
+        modal.innerHTML = `
+          <div class="simple-modal-content">
+            <button class="simple-close" onclick="this.closest('.simple-modal').remove()">&times;</button>
+            <h3>Season Management</h3>
+            
+            <div class="season-password-section">
+              <h4>Season Password</h4>
+              <p>Share this password for others to join:</p>
+              <div class="password-row">
+                <span id="passwordDisplay">••••••••</span>
+                <button id="togglePassword" class="small-button">Show</button>
+              </div>
+            </div>
+            
+            <div class="participants-section">
+              <h4>Participants (${seasonParticipants.length})</h4>
+              <div id="participantsList">
+                ${seasonParticipants.map(p => `
+                  <div class="participant-row">
+                    ${p.photo ? `<img src="${p.photo}" class="small-avatar" />` : ''}
+                    <span>${p.name} ${p.isAdmin ? '(Admin)' : ''}</span>
+                    ${!p.isAdmin ? `<button onclick="removeParticipant('${p.name}')" class="remove-button">Remove</button>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+        modal.style.display = 'flex';
+        
+        document.getElementById('togglePassword').addEventListener('click', async () => {
+          const display = document.getElementById('passwordDisplay');
+          const button = document.getElementById('togglePassword');
+          
+          if (display.textContent === '••••••••') {
+            try {
+              const response = await fetch(`/.netlify/functions/get-season-password?seasonCode=${encodeURIComponent(seasonCode)}&adminName=${encodeURIComponent(userName)}`);
+              if (response.ok) {
+                const data = await response.json();
+                display.textContent = data.password;
+                button.textContent = 'Hide';
+              }
+            } catch (error) {
+              showNotification('Error getting password', 'error');
+            }
+          } else {
+            display.textContent = '••••••••';
+            button.textContent = 'Show';
+          }
+        });
+      }
+
+      /**
+       * Show join password dialog
+       */
+      function showJoinPasswordDialog() {
+        const password = prompt('Enter the season password to join:');
+        if (!password) return;
+        
+        joinSeasonWithPassword(password);
+      }
+
+      /**
+       * Join season with password
+       */
+      async function joinSeasonWithPassword(password) {
+        try {
+          const response = await fetch('/.netlify/functions/join-season', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              seasonCode,
+              password,
+              userName,
+              userEmail,
+              userPhoto
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to join season');
+          }
+
+          showNotification('Successfully joined the season!', 'success');
+          await checkSeasonStatus();
+          
+        } catch (error) {
+          showNotification(error.message, 'error');
+        }
+      }
+
+      /**
+       * Remove participant (global function for onclick)
+       */
+      window.removeParticipant = async function(participantName) {
+        if (!confirm(`Remove ${participantName} from the season? This will delete all their rounds.`)) {
+          return;
+        }
+        
+        try {
+          const response = await fetch('/.netlify/functions/remove-participant', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              seasonCode,
+              participantName,
+              adminName: userName
+            })
+          });
+          
+          if (!response.ok) throw new Error('Failed to remove participant');
+          
+          showNotification(`${participantName} removed from season`, 'success');
+          
+          document.querySelector('.simple-modal').remove();
+          await checkSeasonStatus();
+          loadLeaderboard();
+          
+        } catch (error) {
+          showNotification('Error removing participant', 'error');
+        }
+      };
+
+      /**
+       * Enhance season creation modal
+       */
+      function enhanceCreateSeasonTab() {
+        const createTab = document.getElementById('create-tab');
+        if (!createTab) return;
+        
+        createTab.innerHTML = `
+          <p>Create a new season for your golf group.</p>
+          <input type="text" id="createSeasonInput" placeholder="Enter season name" maxlength="30" />
+          
+          <div class="admin-season-option">
+            <label>
+              <input type="checkbox" id="makeAdminSeason" />
+              Make me the admin (password protected)
+            </label>
+            <input type="password" id="createSeasonPassword" placeholder="Set password" style="display:none;" />
+          </div>
+          
+          <button id="createConfirmBtn" class="primary-button">Create Season</button>
+        `;
+        
+        document.getElementById('makeAdminSeason').addEventListener('change', (e) => {
+          const passwordField = document.getElementById('createSeasonPassword');
+          passwordField.style.display = e.target.checked ? 'block' : 'none';
+          if (!e.target.checked) passwordField.value = '';
+        });
+        
+        document.getElementById('createConfirmBtn').addEventListener('click', async () => {
+          const seasonName = document.getElementById('createSeasonInput').value.trim();
+          const isAdmin = document.getElementById('makeAdminSeason').checked;
+          const password = document.getElementById('createSeasonPassword').value.trim();
+          
+          if (!seasonName) {
+            showNotification('Please enter a season name', 'error');
+            return;
+          }
+          
+          if (isAdmin && !password) {
+            showNotification('Please set a password for admin season', 'error');
+            return;
+          }
+          
+          const success = await createNewSeason(seasonName, isAdmin ? password : '');
+          if (success) {
+            document.getElementById('seasonModal').style.display = 'none';
+            handleSeasonSelection(seasonName, true);
+          }
+        });
+      }
   /**
    * Initialize the app with login-first flow
    */
@@ -1731,6 +2123,7 @@ function showFirstTimeGuidance() {
 
     clearInterval(waitForGoogle);
 
+
     const tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: SCOPES,
@@ -1747,11 +2140,9 @@ function showFirstTimeGuidance() {
             ]
           });
           
-          // Set the access token for API calls
           gapi.client.setToken({ access_token: accessToken });
 
           try {
-            // Make a direct request using the People API
             const response = await fetch('https://people.googleapis.com/v1/people/me?personFields=names,photos,emailAddresses', {
               headers: {
                 'Authorization': `Bearer ${accessToken}`
@@ -1764,7 +2155,6 @@ function showFirstTimeGuidance() {
 
             const data = await response.json();
             
-            // Extract user information
             if (data.names && data.names.length > 0) {
               userName = data.names[0].displayName;
             } else if (data.emailAddresses && data.emailAddresses.length > 0) {
@@ -1773,16 +2163,20 @@ function showFirstTimeGuidance() {
               userName = 'Unknown Player';
             }
 
-            // Get photo URL
+            // GET EMAIL - This is the important addition
+            if (data.emailAddresses && data.emailAddresses.length > 0) {
+              userEmail = data.emailAddresses[0].value;
+            }
+
             if (data.photos && data.photos.length > 0) {
               userPhoto = data.photos[0].url;
             }
 
-            console.log("User info loaded:", userName, userPhoto);
+            console.log("User info loaded:", userName, userEmail, userPhoto);
             
-            // Store authentication data in localStorage
             localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('userName', userName);
+            localStorage.setItem('userEmail', userEmail); // Store email
             localStorage.setItem('userPhoto', userPhoto);
             
             maybeShowJoinSeasonButton();
@@ -1793,27 +2187,21 @@ function showFirstTimeGuidance() {
           }
 
           signinDiv.style.display = 'none';
-          
-          // Show main content
           showMainContent();
-                    
-          // Check if this is a first-time login or user without a season selected
+          
           const storedSeasonCode = localStorage.getItem('currentSeasonCode');
           if (!storedSeasonCode) {
-            // First time user flow - show a welcome message
             showNotification('Welcome to HandiRank! Please select or create a season to get started.', 'success');
-            
-            // Show the season modal with a slight delay for better UX
             setTimeout(() => {
               showSeasonModal();
             }, 500);
           } else {
-            // Returning user, just load the leaderboard
             loadWorldLeaderboardPublic();
           }
         });
       }
     });
+
 
     signinBtn.onclick = () => tokenClient.requestAccessToken();
   }, 100); // retry every 100ms
@@ -1831,4 +2219,7 @@ function showFirstTimeGuidance() {
   
   // Initialize the app with the login-first flow
   initializeApp();
+  setTimeout(() => {
+  enhanceCreateSeasonTab();
+}, 1000);
 });

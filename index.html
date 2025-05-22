@@ -9,6 +9,303 @@
   <!-- Google APIs -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
+  
+  <!-- Admin System Styles -->
+  <style>
+    .simple-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .simple-modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      color: #333;
+    }
+
+    .simple-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .admin-add-round-button,
+    .manage-season-button,
+    .join-season-button {
+      background: linear-gradient(145deg, #4CAF50, #45a049);
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      font-size: 0.95em;
+    }
+
+    .admin-add-round-button:hover,
+    .manage-season-button:hover,
+    .join-season-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    }
+
+    .admin-add-round-button svg,
+    .manage-season-button svg,
+    .join-season-button svg {
+      margin-right: 8px;
+    }
+
+    .manage-season-button {
+      background: linear-gradient(145deg, #f2d50f, #e6c60e);
+      color: #333;
+    }
+
+    .manage-season-button:hover {
+      background: linear-gradient(145deg, #e6c60e, #d4af37);
+    }
+
+    .join-season-button {
+      background: linear-gradient(145deg, #2196F3, #1976D2);
+    }
+
+    .join-season-button:hover {
+      background: linear-gradient(145deg, #1976D2, #1565C0);
+    }
+
+    .participant-status-message {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(145deg, #e8f4fd, #d1ecf1);
+      border: 2px solid #4CAF50;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    .participant-badge {
+      background: linear-gradient(145deg, #4CAF50, #45a049);
+      color: white;
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .participant-status-message p {
+      margin: 8px 0 0 0;
+      color: #2e7d32;
+      font-weight: 500;
+    }
+
+    .admin-season-option {
+      margin: 15px 0;
+      padding: 15px;
+      background: #f0f4c3;
+      border: 1px solid #f2d50f;
+      border-radius: 6px;
+    }
+
+    .admin-season-option label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .admin-season-option input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .admin-season-option input[type="password"] {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+
+    .admin-season-option input[type="password"]:focus {
+      border-color: #f2d50f;
+      outline: none;
+    }
+
+    .season-password-section,
+    .participants-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 6px;
+    }
+
+    .season-password-section h4,
+    .participants-section h4 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+    }
+
+    .password-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .password-row span {
+      flex: 1;
+      padding: 10px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 1.1em;
+      letter-spacing: 1px;
+    }
+
+    .small-button, .remove-button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .small-button {
+      background: linear-gradient(145deg, #4CAF50, #45a049);
+      color: white;
+    }
+
+    .small-button:hover {
+      background: linear-gradient(145deg, #45a049, #3d8b40);
+    }
+
+    .remove-button {
+      background: linear-gradient(145deg, #f44336, #d32f2f);
+      color: white;
+    }
+
+    .remove-button:hover {
+      background: linear-gradient(145deg, #d32f2f, #b71c1c);
+    }
+
+    .participant-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin: 8px 0;
+    }
+
+    .small-avatar {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ddd;
+    }
+
+    .participant-row span {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    #adminRoundForm {
+      margin-top: 20px;
+    }
+
+    #adminRoundForm label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    #adminRoundForm input, 
+    #adminRoundForm select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    #adminRoundForm input:focus, 
+    #adminRoundForm select:focus {
+      border-color: #4CAF50;
+      outline: none;
+      box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    }
+
+    /* Mobile responsiveness */
+    @media screen and (max-width: 768px) {
+      .admin-add-round-button,
+      .manage-season-button,
+      .join-season-button {
+        width: 100%;
+        margin: 8px 0;
+        padding: 15px;
+        font-size: 1rem;
+      }
+      
+      .participant-row {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 8px;
+      }
+      
+      .password-row {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .small-button {
+        width: 100%;
+      }
+      
+      .simple-modal-content {
+        margin: 20px 10px;
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- Login screen that shows before any content -->
@@ -25,26 +322,28 @@
     <footer style="text-align: center; margin-top: 20px;">
       <a href="/privacy.html" style="color: white;">Privacy Policy</a>
     </footer>
-              <!-- About Toggle Section -->
-              <p style="margin-top: 30px; text-align: center; font-size: 0.85em;">
-                <a href="#" id="aboutToggle" style="color: #f2d50f; text-decoration: underline; cursor: pointer;">
-                  What is HandyRanker?
-                </a>
-              </p>
-              <div id="aboutContent" style="display: none; margin: 10px auto; max-width: 600px; color: #d4b278; font-size: 0.85em; text-align: center;">
-                <p>HandyRanker helps golf groups track player rankings and handicaps over a season.</p>
-                <p>We use Google Sign-In to show your name and profile picture on the leaderboard.</p>
-                <p>Scores are securely stored using a service account connected to Google Sheets.</p>
-                <p>You can view this information without logging in.</p>
-              </div>
-        
-              <script>
-                document.getElementById('aboutToggle').onclick = function(e) {
-                  e.preventDefault();
-                  var content = document.getElementById('aboutContent');
-                  content.style.display = content.style.display === 'none' ? 'block' : 'none';
-                };
-              </script>
+    
+    <!-- About Toggle Section -->
+    <p style="margin-top: 30px; text-align: center; font-size: 0.85em;">
+      <a href="#" id="aboutToggle" style="color: #f2d50f; text-decoration: underline; cursor: pointer;">
+        What is HandyRanker?
+      </a>
+    </p>
+    <div id="aboutContent" style="display: none; margin: 10px auto; max-width: 600px; color: #d4b278; font-size: 0.85em; text-align: center;">
+      <p>HandyRanker helps golf groups track player rankings and handicaps over a season.</p>
+      <p>We use Google Sign-In to show your name and profile picture on the leaderboard.</p>
+      <p>Scores are securely stored using a service account connected to Google Sheets.</p>
+      <p>You can view this information without logging in.</p>
+      <p><strong>New:</strong> Create admin-protected seasons with password access for your golf group!</p>
+    </div>
+
+    <script>
+      document.getElementById('aboutToggle').onclick = function(e) {
+        e.preventDefault();
+        var content = document.getElementById('aboutContent');
+        content.style.display = content.style.display === 'none' ? 'block' : 'none';
+      };
+    </script>
   </div>
 
   <!-- Main content - will be shown after login -->
@@ -62,10 +361,8 @@
           <h1 class="hero-title">Track Your Golf Group's Rankings</h1>
           <p class="subtitle">Compare handicaps across all groups or just yours.</p>
         </div>
-        
-        <!-- Home button - only shown when in a specific season view -->
-
       </header>
+      
       <div class="disclaimer-banner">
         This is for strictly golf only. 
       </div>
@@ -83,10 +380,10 @@
 
       <!-- Button container for action buttons -->
       <div class="button-container" id="actionButtons">
-        <!-- Buttons will be added here by JS -->
+        <!-- Admin/participant buttons will be added here by JS -->
       </div>
 
-      <!-- Enter Round Form -->
+      <!-- Enter Round Form (Hidden by default, used in modal) -->
       <form id="roundForm" style="display:none;">
         <h2>Enter New Round</h2>
         <label>Gross Score:</label>
@@ -145,10 +442,11 @@
           <button id="joinConfirmBtn" class="primary-button">Join Season</button>
         </div>
         
-        <!-- Create Season Tab Content -->
+        <!-- Create Season Tab Content (Enhanced by JavaScript) -->
         <div id="create-tab" class="tab-content">
           <p>Create a new season for your golf group.</p>
           <input type="text" id="createSeasonInput" placeholder="Enter new season name" />
+          <!-- Admin option will be added here by JavaScript -->
           <button id="createConfirmBtn" class="primary-button">Create Season</button>
         </div>
         
@@ -162,10 +460,8 @@
     </footer>
   </div>
 
-  <!-- Round Form Modal -->
-
-
   <!-- Main Script -->
   <script src="script.js"></script>
 </body>
-</html>
+</html></document_content>
+</invoke>
