@@ -1010,78 +1010,114 @@ function showFirstTimeGuidance() {
   /**
    * Fetch and display recent seasons
    */
-  async function loadRecentSeasons() {
-    const recentSeasonsList = document.getElementById('recentSeasonsList');
-    if (!recentSeasonsList) return;
-    
-    // Check if we're logged in and have access token
-    if (!isLoggedIn || !accessToken) {
-      recentSeasonsList.innerHTML = '<div class="no-seasons">Sign in to see your recent seasons</div>';
-      return;
-    }
-    
-    try {
-      // Get recent seasons from local storage first
-      const storedSeasons = localStorage.getItem('recentSeasons');
-      const recentSeasons = storedSeasons ? JSON.parse(storedSeasons) : [];
-      
-      if (recentSeasons.length === 0) {
-        recentSeasonsList.innerHTML = '<div class="no-seasons">No recent seasons found</div>';
-        return;
+/**
+ * Fetch and display recent seasons
+ */
+      async function loadRecentSeasons() {
+        const recentSeasonsList = document.getElementById('recentSeasonsList');
+        if (!recentSeasonsList) return;
+        
+        // Check if we're logged in and have access token
+        if (!isLoggedIn || !accessToken) {
+          recentSeasonsList.innerHTML = '<div class="no-seasons">Sign in to see available seasons</div>';
+          return;
+        }
+        
+        try {
+          // Get all available seasons from the new Seasons sheet
+          const allSeasons = await getExistingSeasons();
+          
+          // Get recent seasons from local storage
+          const storedSeasons = localStorage.getItem('recentSeasons');
+          const recentSeasons = storedSeasons ? JSON.parse(storedSeasons) : [];
+          
+          // Combine and prioritize recent seasons, but show all available seasons
+          const seasonsToShow = [
+            ...recentSeasons.filter(season => allSeasons.includes(season)), // Recent seasons that still exist
+            ...allSeasons.filter(season => !recentSeasons.includes(season)) // Other available seasons
+          ];
+          
+          if (seasonsToShow.length === 0) {
+            recentSeasonsList.innerHTML = '<div class="no-seasons">No seasons available</div>';
+            return;
+          }
+          
+          // Display seasons with better styling
+          recentSeasonsList.innerHTML = `
+            <div class="seasons-list-header">
+              <h4>Available Seasons (${seasonsToShow.length})</h4>
+            </div>
+          `;
+          
+          seasonsToShow.forEach((season, index) => {
+            const seasonItem = document.createElement('div');
+            seasonItem.className = 'recent-season-item';
+            
+            // Mark recent seasons
+            const isRecent = recentSeasons.includes(season);
+            if (isRecent) {
+              seasonItem.classList.add('recent-season');
+            }
+            
+            seasonItem.innerHTML = `
+              <div class="season-info">
+                <span class="season-name">${season}</span>
+                ${isRecent ? '<span class="recent-badge">Recent</span>' : ''}
+              </div>
+            `;
+            
+            seasonItem.addEventListener('click', () => {
+              document.getElementById('joinSeasonInput').value = season;
+              // Add visual feedback
+              document.querySelectorAll('.recent-season-item').forEach(item => {
+                item.classList.remove('selected');
+              });
+              seasonItem.classList.add('selected');
+            });
+            
+            recentSeasonsList.appendChild(seasonItem);
+          });
+          
+        } catch (error) {
+          console.error('Error loading seasons:', error);
+          recentSeasonsList.innerHTML = '<div class="no-seasons">Error loading seasons</div>';
+        }
       }
-      
-      // Display recent seasons
-      recentSeasonsList.innerHTML = '';
-      recentSeasons.forEach(season => {
-        const seasonItem = document.createElement('div');
-        seasonItem.className = 'recent-season-item';
-        seasonItem.textContent = season;
-        seasonItem.addEventListener('click', () => {
-          document.getElementById('joinSeasonInput').value = season;
-        });
-        recentSeasonsList.appendChild(seasonItem);
-      });
-    } catch (error) {
-      console.error('Error loading recent seasons:', error);
-      recentSeasonsList.innerHTML = '<div class="no-seasons">Error loading seasons</div>';
-    }
-  }
 
-  function maybeShowJoinSeasonButton() {
-    console.log("Check button conditions:", {
-      isLoggedIn,
-      seasonCode,
-      isWorldView  // <--- Add this!
-    });
-    if (isLoggedIn && !seasonCode && isWorldView) {
-      console.log("Trying to show season button...")
-        // Add a prominent button for season selection
+    function maybeShowViewSeasonsButton() {
+      console.log("Check button conditions:", {
+        isLoggedIn,
+        seasonCode,
+        isWorldView
+      });
+      
+      if (isLoggedIn && !seasonCode && isWorldView) {
+        console.log("Trying to show view seasons button...")
         const actionButtons = document.getElementById('actionButtons');
         if (actionButtons) {
           // Clear any existing buttons
           actionButtons.innerHTML = '';
           
-          // Add the select season button
-          const selectSeasonBtn = document.createElement('button');
-          selectSeasonBtn.className = 'select-season-button';
-          selectSeasonBtn.innerHTML = `
+          // Add the view seasons button (renamed from select season)
+          const viewSeasonsBtn = document.createElement('button');
+          viewSeasonsBtn.className = 'select-season-button'; // Keep same styling
+          viewSeasonsBtn.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
-            Choose Season
+            View Seasons
           `;
-          actionButtons.appendChild(selectSeasonBtn);
+          actionButtons.appendChild(viewSeasonsBtn);
           
           // Add click event listener
-          selectSeasonBtn.addEventListener('click', () => {
+          viewSeasonsBtn.addEventListener('click', () => {
             showSeasonModal();
           });
         }
-       
       } else {
         // Hide buttons when a season is active
+        const actionButtons = document.getElementById('actionButtons');
         if (actionButtons) actionButtons.innerHTML = '';
-       
       }
     }
   /**
@@ -1146,7 +1182,7 @@ function showFirstTimeGuidance() {
       leaderboardTitle.innerText = `${seasonCode} Leaderboard`;
       
       isWorldView = false;
-      maybeShowJoinSeasonButton(); 
+      maybeShowViewSeasonsButton(); 
       // Now that we have a season, we can add the round form button
       setupRoundFormModal(); // Ensure modal is created
       addRoundFormButton(); // Add the button to open it
@@ -1168,19 +1204,28 @@ function showFirstTimeGuidance() {
   /**
    * Get all existing seasons from the server
    */
-  async function getExistingSeasons() {
-    try {
-      const response = await fetch('/.netlify/functions/get-seasons');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch seasons: ${response.status}`);
-      }
+
+async function getExistingSeasons() {
+  try {
+    // First try to get from the new Seasons sheet
+    const response = await fetch('/.netlify/functions/get-all-seasons');
+    if (response.ok) {
       const seasons = await response.json();
       return seasons;
-    } catch (error) {
-      console.error('Error fetching seasons:', error);
-      return [];
+    } else {
+      // Fallback to old method if new function doesn't exist yet
+      const fallbackResponse = await fetch('/.netlify/functions/get-seasons');
+      if (fallbackResponse.ok) {
+        const seasons = await fallbackResponse.json();
+        return seasons;
+      }
     }
+    return [];
+  } catch (error) {
+    console.error('Error fetching seasons:', error);
+    return [];
   }
+}
 
   /**
    * Save a season to recent seasons in local storage
@@ -1507,7 +1552,7 @@ function showNotification(message, type = 'success') {
         loadWorldLeaderboardPublic();
         // Hide season-specific UI elements
         setTimeout(() => {
-          maybeShowJoinSeasonButton();  // 🕒 DOM should be ready now
+          maybeShowViewSeasonsButton();  // 🕒 DOM should be ready now
         }, 100); // slight delay to ensure the view changes and DOM is rendered
         currentSeasonDiv.style.display = 'none';
         const actionButtons = document.getElementById('actionButtons');
@@ -2199,73 +2244,45 @@ function showNotification(message, type = 'success') {
       loadWorldLeaderboardPublic();
     }
   }
-  maybeShowJoinSeasonButton();
+  maybeShowViewSeasonsButton();
   // ----- EVENT LISTENERS -----
 
 
 
   // Round form submission
-  roundForm.addEventListener('submit', async function (event) {
-    event.preventDefault();
-  
-    // First, validate the form
-    if (!validateRoundForm()) {
-      return; // Stop if validation fails
-    }
-  
-    const gross = parseFloat(document.getElementById('gross').value);
-    const rating = parseFloat(document.getElementById('rating').value);
-    const slope = parseFloat(document.getElementById('slope').value);
-    const holes = parseInt(document.getElementById('holes').value);
-    const adjustedGross = gross - 2;
-    const differential = ((adjustedGross - rating) * 113 / slope).toFixed(2);
-    const timestamp = new Date().toLocaleString();
-  
-    try {
-      const response = await fetch('/.netlify/functions/add-round', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          timestamp,
-          userName,
-          gross,
-          rating,
-          slope,
-          holes,
-          adjustedGross,
-          differential,
-          seasonCode,
-          userPhoto
-        })
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Error submitting round');
+      // Round form submission - Clean version:
+    roundForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      // First, validate the form
+      if (!validateRoundForm()) {
+        return;
       }
-  
-      roundForm.reset();
-      showNotification('Round added successfully!');
-      
-      // Close the modal if we're using it
-      const modal = document.querySelector('.round-form-modal');
-      if (modal) {
-        modal.classList.remove('active');
-      }
-      
-      // Reload the appropriate leaderboard based on current view
-      if (isWorldView) {
-        loadWorldLeaderboardPublic();
-      } else {
-        loadLeaderboard();
-      }
-    } catch (err) {
-      console.error('Error appending row:', err);
-      showNotification('Error submitting round. Please try again.', 'error');
-    }
-  });
+
+      const gross = parseFloat(document.getElementById('gross').value);
+      const rating = parseFloat(document.getElementById('rating').value);
+      const slope = parseFloat(document.getElementById('slope').value);
+      const holes = parseInt(document.getElementById('holes').value);
+      const adjustedGross = gross - 2;
+      const differential = ((adjustedGross - rating) * 113 / slope).toFixed(2);
+      const timestamp = new Date().toLocaleString();
+
+      const roundData = {
+        timestamp,
+        userName,
+        gross,
+        rating,
+        slope,
+        holes,
+        adjustedGross,
+        differential,
+        seasonCode,
+        userPhoto
+      };
+
+      // ✅ This handles everything: admin updates, notifications, modal closing, form reset, AND leaderboard reloading
+      await handleRoundSubmission(roundData);
+    });
 
   // Google Sign-in setup
   const waitForGoogle = setInterval(() => {
@@ -2329,7 +2346,7 @@ function showNotification(message, type = 'success') {
             localStorage.setItem('userEmail', userEmail); // Store email
             localStorage.setItem('userPhoto', userPhoto);
             
-            maybeShowJoinSeasonButton();
+            maybeShowViewSeasonsButton();
           } catch (err) {
             console.error('Failed to fetch user info:', err);
             userName = 'Unknown Player';

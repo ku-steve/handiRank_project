@@ -2403,3 +2403,255 @@ body.logged-in .main-content {
   color: #f2d50f;
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
 }
+/* ===== ADD THESE STYLES TO YOUR style.css ===== */
+
+/* Enhanced Recent Seasons List */
+.seasons-list-header {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.seasons-list-header h4 {
+  margin: 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.recent-season-item {
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.recent-season-item:hover {
+  background-color: #e9ecef;
+  border-color: #4CAF50;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.recent-season-item.selected {
+  background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
+  border-color: #4CAF50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+.recent-season-item.recent-season {
+  border-left: 4px solid #f2d50f;
+}
+
+.season-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.season-name {
+  font-weight: 500;
+  color: #333;
+  font-size: 1rem;
+}
+
+.recent-badge {
+  background: linear-gradient(145deg, #f2d50f, #e6c60e);
+  color: #333;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+}
+
+.recent-badge::before {
+  content: "⭐";
+  margin-right: 4px;
+}
+
+/* No seasons message */
+.no-seasons {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+  background-color: #f8f9fa;
+  border: 1px dashed #ddd;
+  border-radius: 6px;
+}
+
+/* Enhanced Recent Seasons Container */
+.recent-seasons {
+  margin: 15px 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 10px;
+  background-color: #fff;
+}
+
+/* Custom scrollbar for seasons list */
+.recent-seasons::-webkit-scrollbar {
+  width: 6px;
+}
+
+.recent-seasons::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.recent-seasons::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.recent-seasons::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Join/View Tab Enhancement */
+#join-tab {
+  padding: 20px 0;
+}
+
+#join-tab p {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+#joinSeasonInput {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  transition: border-color 0.3s ease;
+}
+
+#joinSeasonInput:focus {
+  border-color: #4CAF50;
+  outline: none;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+#joinSeasonInput.season-selected {
+  border-color: #4CAF50;
+  background-color: #f1f8e9;
+}
+
+/* Tab button enhancement */
+.tab-button {
+  flex: 1;
+  background-color: #f5f5f5;
+  color: #555;
+  border: none;
+  padding: 12px 0;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab-button.active {
+  background-color: #4CAF50;
+  color: white;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.tab-button:not(.active):hover {
+  background-color: #e9ecef;
+}
+
+/* Enhanced primary button for join */
+#joinConfirmBtn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(145deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+#joinConfirmBtn:hover {
+  background: linear-gradient(145deg, #45a049, #3d8b40);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+}
+
+#joinConfirmBtn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Loading state for seasons list */
+.seasons-loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.seasons-loading::before {
+  content: "⏳";
+  margin-right: 8px;
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+  .recent-season-item {
+    padding: 10px 12px;
+  }
+  
+  .season-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .recent-badge {
+    align-self: flex-end;
+  }
+  
+  .recent-seasons {
+    max-height: 150px;
+  }
+  
+  .seasons-list-header h4 {
+    font-size: 0.9rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  #join-tab {
+    padding: 15px 0;
+  }
+  
+  .recent-season-item {
+    padding: 8px 10px;
+  }
+  
+  .season-name {
+    font-size: 0.9rem;
+  }
+  
+  .recent-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+}
