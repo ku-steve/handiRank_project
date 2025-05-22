@@ -2080,3 +2080,326 @@ body.logged-in .main-content {
   color: #999;
   float: right;
 }
+/* ===== ADD THESE STYLES TO YOUR style.css ===== */
+
+/* Admin Status Notification */
+.admin-status-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: 350px;
+  background: linear-gradient(145deg, #fff9c4, #f0f4c3);
+  border: 2px solid #f2d50f;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.admin-crown {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 10px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.admin-message {
+  text-align: center;
+}
+
+.admin-message h4 {
+  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+}
+
+.admin-message p {
+  color: #555;
+  margin: 0 0 15px 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.admin-message button {
+  background: linear-gradient(145deg, #f2d50f, #e6c60e);
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.admin-message button:hover {
+  background: linear-gradient(145deg, #e6c60e, #d4af37);
+  transform: translateY(-1px);
+}
+
+/* Admin Info Section in Management Modal */
+.admin-info-section {
+  background: linear-gradient(145deg, #fff9c4, #f0f4c3);
+  border: 2px solid #f2d50f;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.admin-info-section h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-transfer-info {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.admin-transfer-info p {
+  margin: 8px 0;
+  color: #444;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.admin-transfer-info strong {
+  color: #2c5530;
+}
+
+.admin-note {
+  background: rgba(242, 213, 15, 0.2);
+  border-left: 3px solid #f2d50f;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-style: italic;
+}
+
+/* Enhanced Status Indicators */
+.season-status-indicator.admin {
+  background: linear-gradient(145deg, #f2d50f, #e6c60e);
+  color: #333;
+  box-shadow: 0 4px 12px rgba(242, 213, 15, 0.3);
+  animation: adminGlow 3s ease-in-out infinite;
+}
+
+@keyframes adminGlow {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(242, 213, 15, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(242, 213, 15, 0.5);
+  }
+}
+
+.season-status-indicator.admin::before {
+  content: "👑";
+  margin-right: 8px;
+  font-size: 1.1em;
+}
+
+/* Admin Transfer Note for Participants */
+.admin-transfer-note {
+  font-size: 0.85em !important;
+  color: #666 !important;
+  background: rgba(242, 213, 15, 0.1);
+  border-left: 3px solid #f2d50f;
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin-top: 10px !important;
+  font-style: italic;
+}
+
+/* Enhanced Notification Types */
+.notification.admin {
+  background: linear-gradient(145deg, #f2d50f, #e6c60e);
+  color: #333;
+  border-left: 4px solid #d4af37;
+  box-shadow: 0 4px 15px rgba(242, 213, 15, 0.3);
+}
+
+.notification.admin::before {
+  content: "👑 ";
+  font-size: 1.2em;
+}
+
+.notification.info {
+  background: linear-gradient(145deg, #2196F3, #1976D2);
+  color: white;
+  border-left: 4px solid #1565C0;
+}
+
+.notification.participant {
+  background: linear-gradient(145deg, #4CAF50, #45a049);
+  color: white;
+  border-left: 4px solid #2e7d32;
+}
+
+/* Participant row admin indicator */
+.participant-row .admin-crown {
+  font-size: 1.2em;
+  margin-left: 8px;
+  animation: none;
+}
+
+/* Leaderboard admin indicator */
+.leaderboard-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(145deg, #f2d50f, #e6c60e);
+  color: #333;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.8em;
+  font-weight: bold;
+  margin-left: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.leaderboard-admin-badge::before {
+  content: "👑";
+  margin-right: 4px;
+}
+
+/* Enhanced Season Management Styling */
+.season-password-section {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border-left: 3px solid #4CAF50;
+}
+
+.participants-section {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border-left: 3px solid #2196F3;
+}
+
+/* Loading States for Admin Updates */
+.admin-updating {
+  position: relative;
+  opacity: 0.7;
+}
+
+.admin-updating::after {
+  content: "Updating admin...";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  z-index: 10;
+}
+
+/* Responsive Design for Admin Features */
+@media screen and (max-width: 768px) {
+  .admin-status-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    margin: 0;
+  }
+  
+  .admin-crown {
+    font-size: 2rem;
+  }
+  
+  .admin-message h4 {
+    font-size: 1.1rem;
+  }
+  
+  .admin-info-section {
+    padding: 12px;
+  }
+  
+  .admin-transfer-info {
+    padding: 10px;
+  }
+  
+  .season-status-indicator {
+    text-align: center;
+    padding: 12px;
+    margin: 10px 0;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .admin-status-notification {
+    padding: 15px;
+  }
+  
+  .admin-crown {
+    font-size: 1.8rem;
+  }
+  
+  .admin-message p {
+    font-size: 0.85rem;
+  }
+  
+  .admin-transfer-info p {
+    font-size: 0.8rem;
+  }
+  
+  .notification {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+  }
+}
+
+/* Animation for leaderboard updates */
+@keyframes leaderboardUpdate {
+  0% {
+    background-color: rgba(242, 213, 15, 0.3);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.leaderboard-updated {
+  animation: leaderboardUpdate 2s ease-out;
+}
+
+/* Admin crown for participant lists */
+.participant-admin-crown {
+  font-size: 1.1em;
+  margin-left: 6px;
+  color: #f2d50f;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}

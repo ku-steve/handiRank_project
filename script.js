@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let isSeasonAdmin = false;
   let isSeasonParticipant = false;
   let seasonParticipants = [];
+  let previousAdmin = null;
 
 
   // DOM Elements
@@ -1329,34 +1330,48 @@ function showFirstTimeGuidance() {
   /**
    * Show notification message
    */
-  function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    notification.style.position = 'fixed';
-    notification.style.top = '20px';
-    notification.style.right = '20px';
-    notification.style.padding = '10px 20px';
-    notification.style.borderRadius = '4px';
-    notification.style.zIndex = '1000';
-    
-    if (type === 'success') {
-      notification.style.backgroundColor = '#4CAF50';
-      notification.style.color = 'white';
-    } else {
-      notification.style.backgroundColor = '#f44336';
-      notification.style.color = 'white';
-    }
-    
-    document.body.appendChild(notification);
-    
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-      notification.style.opacity = '0';
-      notification.style.transition = 'opacity 0.5s';
-      setTimeout(() => notification.remove(), 500);
-    }, 3000);
+// OPTIONAL: Enhance your existing showNotification function to handle new notification types:
+function showNotification(message, type = 'success') {
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+  notification.style.position = 'fixed';
+  notification.style.top = '20px';
+  notification.style.right = '20px';
+  notification.style.padding = '10px 20px';
+  notification.style.borderRadius = '4px';
+  notification.style.zIndex = '1000';
+  notification.style.maxWidth = '300px';
+  notification.style.wordWrap = 'break-word';
+  
+  if (type === 'success') {
+    notification.style.backgroundColor = '#4CAF50';
+    notification.style.color = 'white';
+  } else if (type === 'error') {
+    notification.style.backgroundColor = '#f44336';
+    notification.style.color = 'white';
+  } else if (type === 'admin') {
+    notification.style.background = 'linear-gradient(145deg, #f2d50f, #e6c60e)';
+    notification.style.color = '#333';
+    notification.style.fontWeight = 'bold';
+  } else if (type === 'info') {
+    notification.style.background = 'linear-gradient(145deg, #2196F3, #1976D2)';
+    notification.style.color = 'white';
+  } else if (type === 'participant') {
+    notification.style.background = 'linear-gradient(145deg, #4CAF50, #45a049)';
+    notification.style.color = 'white';
   }
+  
+  document.body.appendChild(notification);
+  
+  // Auto remove after 3 seconds (longer for admin notifications)
+  const timeout = type === 'admin' ? 5000 : 3000;
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transition = 'opacity 0.5s';
+    setTimeout(() => notification.remove(), 500);
+  }, timeout);
+}
 
   /**
    * Make the table responsive
@@ -1635,28 +1650,44 @@ function showFirstTimeGuidance() {
     return false;
   }
 
+    // REPLACE your existing checkSeasonStatus function with this enhanced version:
     async function checkSeasonStatus() {
-        if (!seasonCode || !userName) return;
+      if (!seasonCode || !userName) return;
+      
+      try {
+        const response = await fetch(`/.netlify/functions/check-season-status?seasonCode=${encodeURIComponent(seasonCode)}&userName=${encodeURIComponent(userName)}`);
         
-        try {
-          const response = await fetch(`/.netlify/functions/check-season-status?seasonCode=${encodeURIComponent(seasonCode)}&userName=${encodeURIComponent(userName)}`);
+        if (response.ok) {
+          const data = await response.json();
           
-          if (response.ok) {
-            const data = await response.json();
-            isSeasonAdmin = data.isAdmin;
-            isSeasonParticipant = data.isParticipant;
-            seasonParticipants = data.participants || [];
-            
-            updateSeasonUI();
+          // Check for admin changes
+          const currentAdmin = data.currentAdmin;
+          if (previousAdmin && previousAdmin !== currentAdmin) {
+            handleAdminChange(previousAdmin, currentAdmin);
           }
-        } catch (error) {
-          console.error('Error checking season status:', error);
+          previousAdmin = currentAdmin;
+          
+          // Update global status variables
+          isSeasonAdmin = data.isAdmin;
+          isSeasonParticipant = data.isParticipant;
+          seasonParticipants = data.participants || [];
+          
+          updateSeasonUI();
+          
+          // Show admin status if user is the admin
+          if (data.isAdmin && userName === currentAdmin) {
+            showAdminStatusNotification();
+          }
         }
+      } catch (error) {
+        console.error('Error checking season status:', error);
       }
+    }
 
       /**
        * Update UI based on season status
        */
+    // REPLACE your existing updateSeasonUI function with this enhanced version:
       function updateSeasonUI() {
         const actionButtons = document.getElementById('actionButtons');
         if (!actionButtons) return;
@@ -1664,6 +1695,12 @@ function showFirstTimeGuidance() {
         actionButtons.innerHTML = '';
         
         if (isSeasonAdmin) {
+          // Show admin crown indicator
+          const adminIndicator = document.createElement('div');
+          adminIndicator.className = 'season-status-indicator admin';
+          adminIndicator.innerHTML = `You're the Admin (Ranked #1)`;
+          actionButtons.appendChild(adminIndicator);
+          
           // Admin gets "Add Round for Player" button
           const adminBtn = document.createElement('button');
           adminBtn.className = 'admin-add-round-button';
@@ -1693,12 +1730,13 @@ function showFirstTimeGuidance() {
           actionButtons.appendChild(manageBtn);
           
         } else if (isSeasonParticipant) {
-          // Participants see status message
+          // Participants see status message with admin transfer info
           const statusDiv = document.createElement('div');
           statusDiv.className = 'participant-status-message';
           statusDiv.innerHTML = `
             <span class="participant-badge">✓ Season Participant</span>
             <p>Contact the season admin to add your golf rounds.</p>
+            <p class="admin-transfer-note">💡 Tip: The admin role transfers to whoever ranks #1!</p>
           `;
           actionButtons.appendChild(statusDiv);
           
@@ -1723,10 +1761,10 @@ function showFirstTimeGuidance() {
           addSeasonManagementButton();
         }
       }
-
       /**
        * Show admin round form
        */
+// REPLACE your existing showAdminRoundForm function with this enhanced version:
       function showAdminRoundForm() {
         if (seasonParticipants.length === 0) {
           showNotification('No participants in this season yet.', 'error');
@@ -1740,11 +1778,19 @@ function showFirstTimeGuidance() {
             <button class="simple-close" onclick="this.closest('.simple-modal').remove()">&times;</button>
             <h3>Add Round for Player</h3>
             
+            <div class="admin-note-box" style="background: rgba(242, 213, 15, 0.1); border: 1px solid #f2d50f; border-radius: 6px; padding: 10px; margin-bottom: 15px;">
+              <p style="margin: 0; font-size: 0.9em; color: #333;"><strong>💡 Admin Transfer Note:</strong> Adding rounds may change leaderboard rankings and admin status.</p>
+            </div>
+            
             <form id="adminRoundForm">
               <label>Select Player:</label>
               <select id="adminPlayerSelect" required>
                 <option value="">Choose a player...</option>
-                ${seasonParticipants.map(p => `<option value="${p.name}" data-photo="${p.photo || ''}">${p.name}</option>`).join('')}
+                ${seasonParticipants.map(p => `
+                  <option value="${p.name}" data-photo="${p.photo || ''}" ${p.isAdmin ? 'data-current-admin="true"' : ''}>
+                    ${p.name} ${p.isAdmin ? '👑 (Current Admin)' : ''}
+                  </option>
+                `).join('')}
               </select>
               
               <label>Gross Score:</label>
@@ -1799,86 +1845,82 @@ function showFirstTimeGuidance() {
           roundData.adjustedGross = adjustedGross;
           roundData.differential = ((adjustedGross - roundData.rating) * 113 / roundData.slope).toFixed(2);
           
-          try {
-            const response = await fetch('/.netlify/functions/add-round', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(roundData)
-            });
-            
-            if (!response.ok) throw new Error('Failed to add round');
-            
-            showNotification(`Round added for ${selectedPlayer}!`, 'success');
-            modal.remove();
-            loadLeaderboard();
-            
-          } catch (error) {
-            console.error('Error adding admin round:', error);
-            showNotification('Error adding round. Please try again.', 'error');
-          }
+          // Use the enhanced submission function
+          await handleRoundSubmission(roundData);
+          modal.remove();
         });
       }
 
       /**
        * Show season management modal
        */
-      function showSeasonManagement() {
-        const modal = document.createElement('div');
-        modal.className = 'simple-modal';
-        modal.innerHTML = `
-          <div class="simple-modal-content">
-            <button class="simple-close" onclick="this.closest('.simple-modal').remove()">&times;</button>
-            <h3>Season Management</h3>
-            
-            <div class="season-password-section">
-              <h4>Season Password</h4>
-              <p>Share this password for others to join:</p>
-              <div class="password-row">
-                <span id="passwordDisplay">••••••••</span>
-                <button id="togglePassword" class="small-button">Show</button>
-              </div>
-            </div>
-            
-            <div class="participants-section">
-              <h4>Participants (${seasonParticipants.length})</h4>
-              <div id="participantsList">
-                ${seasonParticipants.map(p => `
-                  <div class="participant-row">
-                    ${p.photo ? `<img src="${p.photo}" class="small-avatar" />` : ''}
-                    <span>${p.name} ${p.isAdmin ? '(Admin)' : ''}</span>
-                    ${!p.isAdmin ? `<button onclick="removeParticipant('${p.name}')" class="remove-button">Remove</button>` : ''}
+          // REPLACE your existing showSeasonManagement function with this enhanced version:
+       function showSeasonManagement() {
+            const modal = document.createElement('div');
+            modal.className = 'simple-modal';
+            modal.innerHTML = `
+              <div class="simple-modal-content">
+                <button class="simple-close" onclick="this.closest('.simple-modal').remove()">&times;</button>
+                <h3>Season Management</h3>
+                
+                <div class="admin-info-section">
+                  <h4>👑 Admin Status</h4>
+                  <div class="admin-transfer-info">
+                    <p><strong>Dynamic Admin System:</strong> The admin role automatically transfers to whoever is ranked #1 on the leaderboard.</p>
+                    <p>Current admin: <strong>${previousAdmin || 'Unknown'}</strong></p>
+                    <p class="admin-note">💡 Stay at the top to keep admin privileges!</p>
                   </div>
-                `).join('')}
+                </div>
+                
+                <div class="season-password-section">
+                  <h4>Season Password</h4>
+                  <p>Share this password for others to join:</p>
+                  <div class="password-row">
+                    <span id="passwordDisplay">••••••••</span>
+                    <button id="togglePassword" class="small-button">Show</button>
+                  </div>
+                </div>
+                
+                <div class="participants-section">
+                  <h4>Participants (${seasonParticipants.length})</h4>
+                  <div id="participantsList">
+                    ${seasonParticipants.map(p => `
+                      <div class="participant-row">
+                        ${p.photo ? `<img src="${p.photo}" class="small-avatar" />` : ''}
+                        <span>${p.name} ${p.isAdmin ? '👑 (Admin)' : ''}</span>
+                        ${!p.isAdmin ? `<button onclick="removeParticipant('${p.name}')" class="remove-button">Remove</button>` : ''}
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        `;
-        
-        document.body.appendChild(modal);
-        modal.style.display = 'flex';
-        
-        document.getElementById('togglePassword').addEventListener('click', async () => {
-          const display = document.getElementById('passwordDisplay');
-          const button = document.getElementById('togglePassword');
-          
-          if (display.textContent === '••••••••') {
-            try {
-              const response = await fetch(`/.netlify/functions/get-season-password?seasonCode=${encodeURIComponent(seasonCode)}&adminName=${encodeURIComponent(userName)}`);
-              if (response.ok) {
-                const data = await response.json();
-                display.textContent = data.password;
-                button.textContent = 'Hide';
+            `;
+            
+            document.body.appendChild(modal);
+            modal.style.display = 'flex';
+            
+            // Add password toggle functionality
+            document.getElementById('togglePassword').addEventListener('click', async () => {
+              const display = document.getElementById('passwordDisplay');
+              const button = document.getElementById('togglePassword');
+              
+              if (display.textContent === '••••••••') {
+                try {
+                  const response = await fetch(`/.netlify/functions/get-season-password?seasonCode=${encodeURIComponent(seasonCode)}&adminName=${encodeURIComponent(userName)}`);
+                  if (response.ok) {
+                    const data = await response.json();
+                    display.textContent = data.password;
+                    button.textContent = 'Hide';
+                  }
+                } catch (error) {
+                  showNotification('Error getting password', 'error');
+                }
+              } else {
+                display.textContent = '••••••••';
+                button.textContent = 'Show';
               }
-            } catch (error) {
-              showNotification('Error getting password', 'error');
-            }
-          } else {
-            display.textContent = '••••••••';
-            button.textContent = 'Show';
+            });
           }
-        });
-      }
-
       /**
        * Show join password dialog
        */
@@ -2004,6 +2046,114 @@ function showFirstTimeGuidance() {
   /**
    * Initialize the app with login-first flow
    */
+      // ADD these new functions to your script.js:
+
+    /**
+     * Handle admin change notifications
+     */
+    function handleAdminChange(oldAdmin, newAdmin) {
+      if (userName === newAdmin) {
+        // User became admin
+        showNotification(`🎉 Congratulations! You're now the season admin (ranked #1)!`, 'admin');
+      } else if (userName === oldAdmin) {
+        // User lost admin status
+        showNotification(`Admin role transferred to ${newAdmin} (new #1 player)`, 'participant');
+      } else {
+        // Admin changed to someone else
+        showNotification(`${newAdmin} is now the season admin (ranked #1)`, 'info');
+      }
+    }
+
+    /**
+     * Show admin status notification for current admins
+     */
+    function showAdminStatusNotification() {
+      // Only show this once per session
+      if (localStorage.getItem(`adminNotified_${seasonCode}_${userName}`)) {
+        return;
+      }
+      
+      const adminNotification = document.createElement('div');
+      adminNotification.className = 'admin-status-notification';
+      adminNotification.innerHTML = `
+        <div class="admin-crown">👑</div>
+        <div class="admin-message">
+          <h4>You're the Season Admin!</h4>
+          <p>You're currently ranked #1. Admin privileges transfer automatically to whoever leads the leaderboard.</p>
+          <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
+        </div>
+      `;
+      
+      document.body.appendChild(adminNotification);
+      
+      // Mark as shown for this session
+      localStorage.setItem(`adminNotified_${seasonCode}_${userName}`, 'true');
+      
+      // Auto-remove after 8 seconds
+      setTimeout(() => {
+        if (adminNotification.parentElement) {
+          adminNotification.remove();
+        }
+      }, 8000);
+    }
+
+    /**
+     * Enhanced round form submission with admin update handling
+     */
+    async function handleRoundSubmission(roundData) {
+      try {
+        const response = await fetch('/.netlify/functions/add-round', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(roundData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Error submitting round');
+        }
+
+        const result = await response.json();
+        
+        // Show success message
+        showNotification('Round added successfully!');
+        
+        // Check if admin was updated
+        if (result.adminUpdated) {
+          showNotification('Leaderboard updated - checking for admin changes...', 'info');
+          
+          // Delay the status check slightly to ensure all updates are complete
+          setTimeout(async () => {
+            await checkSeasonStatus();
+          }, 1000);
+        } else {
+          // Regular status check
+          await checkSeasonStatus();
+        }
+        
+        // Close modal and reload leaderboard
+        const modal = document.querySelector('.round-form-modal');
+        if (modal) {
+          modal.classList.remove('active');
+        }
+        
+        // Reset form
+        document.getElementById('roundForm').reset();
+        
+        // Reload appropriate leaderboard
+        if (isWorldView) {
+          loadWorldLeaderboardPublic();
+        } else {
+          loadLeaderboard();
+        }
+        
+      } catch (err) {
+        console.error('Error submitting round:', err);
+        showNotification('Error submitting round. Please try again.', 'error');
+      }
+    }
   function initializeApp() {
     const preLoginContent = document.querySelector('.pre-login-content');
     const mainContent = document.querySelector('.main-content');
@@ -2222,4 +2372,20 @@ function showFirstTimeGuidance() {
   setTimeout(() => {
   enhanceCreateSeasonTab();
 }, 1000);
+// Initialize admin transfer system
+if (seasonCode) {
+  // Clear old admin notifications from other seasons
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('adminNotified_') && !key.includes(seasonCode)) {
+      localStorage.removeItem(key);
+    }
+  });
+  
+  // Add periodic status checks (every 30 seconds)
+  setInterval(async () => {
+    if (seasonCode && userName && isSeasonParticipant) {
+      await checkSeasonStatus();
+    }
+  }, 30000);
+}
 });
