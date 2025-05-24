@@ -49,33 +49,47 @@ body, html {
 .app-title {
   font-size: 3rem;
   margin-bottom: 10px;
-  color: #f2d50f;
+  color: transparent;
+  background: linear-gradient(90deg, 
+    #b8860b 0%, 
+    #f2d50f 20%, 
+    #fff 40%, 
+    #f2d50f 60%, 
+    #fff 80%, 
+    #f2d50f 100%);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
   text-shadow: 
     0 0 10px #f2d50f,
     0 0 20px #f2d50f,
-    0 0 30px #f2d50f,
-    0 0 40px #f2d50f,
-    0 0 50px #f2d50f,
-    0 0 60px #f2d50f;
-  animation: textGlow 2s ease-in-out infinite alternate;
+    0 0 30px #f2d50f;
+  animation: 
+    dramaticShimmer 2s linear infinite,
+    strongPulse 1.5s ease-in-out infinite alternate;
 }
 
-@keyframes textGlow {
-  from {
+@keyframes dramaticShimmer {
+  0% { background-position: -300% center; }
+  100% { background-position: 300% center; }
+}
+
+@keyframes strongPulse {
+  0% {
     text-shadow: 
+      0 0 5px #f2d50f,
       0 0 10px #f2d50f,
-      0 0 20px #f2d50f,
-      0 0 30px #f2d50f,
-      0 0 40px #f2d50f;
+      0 0 15px #f2d50f;
+    transform: scale(1);
   }
-  to {
+  100% {
     text-shadow: 
-      0 0 20px #f2d50f,
-      0 0 30px #f2d50f,
-      0 0 40px #f2d50f,
-      0 0 50px #f2d50f,
-      0 0 60px #f2d50f,
-      0 0 70px #f2d50f;
+      0 0 15px #f2d50f,
+      0 0 25px #f2d50f,
+      0 0 35px #f2d50f,
+      0 0 45px #f2d50f,
+      0 0 55px #f2d50f;
+    transform: scale(1.02);
   }
 }
 
