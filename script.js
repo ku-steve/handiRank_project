@@ -1301,36 +1301,42 @@ async function getExistingSeasons() {
   /**
    * Validate round form and show errors
    */
-  function validateRoundForm() {
-    let isValid = true;
-    const gross = document.getElementById('gross').value;
-    const rating = document.getElementById('rating').value;
-    const slope = document.getElementById('slope').value;
-    
-    // Clear previous errors
-    clearFormErrors();
-    
-    // Validate gross score (reasonable golf score)
-    if (!gross || isNaN(gross) || gross < 50 || gross > 200) {
-      showError('gross', 'Please enter a valid score between 50 and 200');
-      isValid = false;
+    function validateRoundForm() {
+      let isValid = true;
+      const gross = document.getElementById('gross').value;
+      const rating = document.getElementById('rating').value;
+      const slope = document.getElementById('slope').value;
+      const holes = document.getElementById('holes').value;
+      
+      // Clear previous errors
+      clearFormErrors();
+      
+      // Validate gross score based on number of holes
+      const minScore = holes === '9' ? 25 : 50;  // Lower minimum for 9 holes
+      const maxScore = holes === '9' ? 100 : 200; // Lower maximum for 9 holes
+      
+      if (!gross || isNaN(gross) || gross < minScore || gross > maxScore) {
+        showError('gross', `Please enter a valid score between ${minScore} and ${maxScore}`);
+        isValid = false;
+      }
+      
+      // Validate course rating (adjust range for 9 holes)
+      const minRating = holes === '9' ? 30 : 60;
+      const maxRating = holes === '9' ? 40 : 80;
+      
+      if (!rating || isNaN(rating) || rating < minRating || rating > maxRating) {
+        showError('rating', `Course rating should be between ${minRating} and ${maxRating}`);
+        isValid = false;
+      }
+      
+      // Validate slope (valid slope range is 55-155 per USGA for both 9 and 18 holes)
+      if (!slope || isNaN(slope) || slope < 55 || slope > 155) {
+        showError('slope', 'Slope should be between 55 and 155');
+        isValid = false;
+      }
+      
+      return isValid;
     }
-    
-    // Validate course rating (valid range)
-    if (!rating || isNaN(rating) || rating < 60 || rating > 80) {
-      showError('rating', 'Course rating should be between 60 and 80');
-      isValid = false;
-    }
-    
-    // Validate slope (valid slope range is 55-155 per USGA)
-    if (!slope || isNaN(slope) || slope < 55 || slope > 155) {
-      showError('slope', 'Slope should be between 55 and 155');
-      isValid = false;
-    }
-    
-    return isValid;
-  }
-
   /**
    * Show error message for form validation
    */
@@ -1839,7 +1845,7 @@ function showNotification(message, type = 'success') {
               </select>
               
               <label>Gross Score:</label>
-              <input type="number" id="adminGross" required min="50" max="200" />
+              <input type="number" id="adminGross" required min="25" max="200" />
               
               <label>Course Rating:</label>
               <input type="number" step="0.1" id="adminRating" required min="60" max="80" />
@@ -1861,6 +1867,24 @@ function showNotification(message, type = 'success') {
         document.body.appendChild(modal);
         modal.style.display = 'flex';
         
+        // Add this after creating the admin form modal
+        document.getElementById('adminHoles').addEventListener('change', function(e) {
+          const grossInput = document.getElementById('adminGross');
+          const ratingInput = document.getElementById('adminRating');
+          
+          if (e.target.value === '9') {
+            grossInput.min = '25';
+            grossInput.max = '100';
+            ratingInput.min = '30';
+            ratingInput.max = '40';
+          } else {
+            grossInput.min = '50';
+            grossInput.max = '200';
+            ratingInput.min = '60';
+            ratingInput.max = '80';
+          }
+        });
+
         document.getElementById('adminRoundForm').addEventListener('submit', async (e) => {
           e.preventDefault();
           
