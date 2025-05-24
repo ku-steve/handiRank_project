@@ -1175,6 +1175,7 @@ function showFirstTimeGuidance() {
       
       // Store the selected season in localStorage for persistence
       localStorage.setItem('currentSeasonCode', code);
+
       
       // Update UI
       currentSeasonDiv.innerText = `Current Season: ${seasonCode}`;
@@ -1190,9 +1191,13 @@ function showFirstTimeGuidance() {
       // Add the season management button
       addSeasonManagementButton();
       
-      // Load the season's leaderboard
+     // Load the season's leaderboard and transition to app view
       await checkSeasonStatus();
-      loadLeaderboard();
+      await loadLeaderboard();
+
+      // ✅ Now that everything succeeded, show the app view
+      seasonModal.style.display = 'none';     // Hide modal
+      showMainContent();  
     } catch (error) {
       console.error('Error in season selection:', error);
       showNotification('An error occurred. Please try again.', 'error');
