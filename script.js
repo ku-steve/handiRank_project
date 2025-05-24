@@ -928,7 +928,7 @@ function showFirstTimeGuidance() {
       const slope = parseFloat(slopeInput.value);
       
       if (!isNaN(gross) && !isNaN(rating) && !isNaN(slope)) {
-        const adjustedGross = gross - 2; // Same adjustment as in your existing code
+        const adjustedGross = gross; // Same adjustment as in your existing code
         const differential = ((adjustedGross - rating) * 113 / slope).toFixed(2);
         previewElement.innerHTML = `<span>Differential Preview: <b>${differential}</b></span>`;
       } else {
@@ -1910,9 +1910,10 @@ function showNotification(message, type = 'success') {
             isAdminEntry: true
           };
           
-          const adjustedGross = roundData.gross - 2;
+          const adjustedGross = roundData.gross;
           roundData.adjustedGross = adjustedGross;
           roundData.differential = ((adjustedGross - roundData.rating) * 113 / roundData.slope).toFixed(2);
+          
           
           // Use the enhanced submission function
           await handleRoundSubmission(roundData);
@@ -2287,7 +2288,7 @@ function showNotification(message, type = 'success') {
       const rating = parseFloat(document.getElementById('rating').value);
       const slope = parseFloat(document.getElementById('slope').value);
       const holes = parseInt(document.getElementById('holes').value);
-      const adjustedGross = gross - 2;
+      const adjustedGross = gross;
       const differential = ((adjustedGross - rating) * 113 / slope).toFixed(2);
       const timestamp = new Date().toLocaleString();
 
