@@ -2691,7 +2691,9 @@ body.logged-in .main-content {
   font-size: 3rem;
   margin-bottom: 10px;
   color: #f2d50f;
-  animation: obviousTest 1s ease-in-out infinite alternate;
+  /* Run both animations */
+  animation: fadeUp 1s ease forwards, obviousTest 1s ease-in-out infinite alternate;
+  animation-delay: 0.3s, 1s; /* delay the obviousTest until after fadeUp */
 }
 
 @keyframes obviousTest {
