@@ -2690,28 +2690,17 @@ body.logged-in .main-content {
 .app-title {
   font-size: 3rem;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, 
-    #d4af37 0%, 
-    #f2d50f 25%, 
-    #ffff99 50%, 
-    #f2d50f 75%, 
-    #d4af37 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #f2d50f; /* Fallback for unsupported browsers */
-  text-shadow: 0 0 10px #f2d50f;
-  animation: gentleShimmer 4s ease-in-out infinite;
+  color: #f2d50f;
+  animation: obviousTest 1s ease-in-out infinite alternate;
 }
 
-@keyframes gentleShimmer {
-  0%, 100% { 
-    background-position: 0% center;
-    filter: brightness(1);
+@keyframes obviousTest {
+  0% {
+    color: #f2d50f;
+    transform: scale(1);
   }
-  50% { 
-    background-position: 100% center;
-    filter: brightness(1.3);
+  100% {
+    color: #ff0000;
+    transform: scale(1.1);
   }
 }
