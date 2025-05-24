@@ -2687,13 +2687,8 @@ body.logged-in .main-content {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-/* Remove the old styles and use this instead */
-.title-glow-wrapper {
-  position: relative;
-  display: inline-block;
-  overflow: hidden;
-  z-index: 1;
-}
+/* Remove the wrapper div from HTML and go back to just: */
+/* <h1 class="app-title fade-up fade-delay-1">HandyRanker</h1> */
 
 .app-title {
   font-size: 3rem;
@@ -2704,37 +2699,35 @@ body.logged-in .main-content {
     0 0 20px #f2d50f,
     0 0 30px #f2d50f;
   position: relative;
-  z-index: 2;
+  display: inline-block;
+  /* Mask the shimmer to only show on text */
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
-/* Create the sweep effect on the wrapper */
-.title-glow-wrapper::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -100%;
-  width: 100%;
-  height: 200%;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255, 255, 255, 0.4) 50%, 
-    transparent 100%);
-  transform: skewX(-25deg);
-  animation: shimmerSweep 3s linear infinite;
-  z-index: 3;
-  pointer-events: none;
+/* For the shimmer effect, use a gradient background */
+.app-title.shimmer {
+  background-image: linear-gradient(
+    90deg,
+    #f2d50f 0%,
+    #fff 50%,
+    #f2d50f 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-position: -200% center;
+  animation: shimmer 3s linear infinite;
 }
 
-@keyframes shimmerSweep {
-  0% { 
-    left: -100%;
-  }
-  100% { 
-    left: 200%;
+@keyframes shimmer {
+  to {
+    background-position: 200% center;
   }
 }
 
-/* Pulse glow animation */
+/* Keep the glow separate */
 @keyframes pulseGlow {
   0% {
     text-shadow: 
@@ -2744,14 +2737,14 @@ body.logged-in .main-content {
   }
   100% {
     text-shadow: 
-      0 0 15px #f2d50f,
-      0 0 30px #f2d50f,
-      0 0 45px #f2d50f,
-      0 0 60px #f2d50f;
+      0 0 20px #f2d50f,
+      0 0 35px #f2d50f,
+      0 0 50px #f2d50f,
+      0 0 65px #f2d50f;
   }
 }
 
-/* Apply animations properly */
+/* Combine with fade-up */
 .app-title.fade-up {
   animation: fadeUp 0.6s ease forwards, pulseGlow 2s ease-in-out 0.9s infinite alternate;
 }
